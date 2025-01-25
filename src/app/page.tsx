@@ -1,6 +1,4 @@
-import { CarouselDemo } from "@/components/features";
 import { NavBarHome } from "@/components/navbar";
-import { AnimatedTestimonialsHome} from "@/components/testimonials";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Header1 } from "@/components/ui/header";
 import { Button } from "@/components/ui/moving-border";
@@ -33,9 +31,7 @@ export default function Home() {
     </div>
       </div>
     </div>
-    <CarouselDemo/>
-    <AnimatedTestimonialsHome/>
-
+    
 
     </ThemeProvider>
   );

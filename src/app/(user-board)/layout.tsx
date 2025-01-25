@@ -9,7 +9,7 @@ export default function UserLayout({
   return (
     <>
       <div className="h-screen flex flex-col">
-        <main className="flex-grow overflow-auto">
+        <main className="flex-grow overflow-auto mb-16"> {/* Added mb-16 for bottom margin */}
           {children}
         </main>
         <div className="fixed bottom-0 w-full">
