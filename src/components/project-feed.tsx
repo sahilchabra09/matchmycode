@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { X, Check, Users, Calendar, Target } from "lucide-react"
+import { X, Check, Calendar, Target } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
 // Swiping sensitivity constants
@@ -21,56 +21,96 @@ const swipePower = (offset: number, velocity: number) => {
   return Math.abs(offset) * velocity
 }
 
+interface FeedProject {
+  id: number
+  title: string
+  short_description?: string
+  big_description?: string
+  tags?: string[]
+  skills_required?: string[]
+  goals?: string
+  duration?: string
+  clerkId?: string
+  name?: string
+}
+
 export default function ProjectFeed() {
   const { toast } = useToast()
 
-  // Projects state
-  const [projects, setProjects] = useState<any[]>([])
-  // Track the exit direction so the card animates left or right properly
+  // 1. All hooks at the top:
+  const [loading, setLoading] = useState(true)
+  const [projects, setProjects] = useState<FeedProject[]>([])
   const [exitX, setExitX] = useState(0)
-
-  // Screens
   const [showSuccessScreen, setShowSuccessScreen] = useState(false)
   const [showRejectionScreen, setShowRejectionScreen] = useState(false)
 
-  // --- Fetch data from your API on mount ---
+  // 2. useEffect to fetch data
   useEffect(() => {
     async function fetchProjects() {
       try {
-        const response = await fetch("https://pleasant-mullet-unified.ngrok-free.app/projects/feed_projects")
+        setLoading(true)
+        const response = await fetch(
+          "https://pleasant-mullet-unified.ngrok-free.app/projects/feed_projects",
+          {
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "true",
+            },
+          }
+        )
+
         if (!response.ok) {
-          throw new Error("Failed to fetch projects")
+          throw new Error(`HTTP error! status: ${response.status}`)
         }
-        const data = await response.json()
-        setProjects(data) // data should be an array of projects
+
+        const text = await response.text()
+
+        if (!text) {
+          setProjects([])
+          return
+        }
+
+        try {
+          const data = JSON.parse(text)
+          if (Array.isArray(data)) {
+            setProjects(data)
+          } else {
+            setProjects([])
+          }
+        } catch (parseError) {
+          console.error("Failed to parse JSON:", parseError)
+          setProjects([])
+        }
       } catch (error) {
-        console.error(error)
+        console.error("Failed to fetch projects:", error)
+        setProjects([])
+      } finally {
+        setLoading(false)
       }
     }
+
     fetchProjects()
   }, [])
 
-  // Helper to remove the first project from the list
+  // 3. Helper to remove the first project from the list
   const removeProject = useCallback(() => {
     setProjects((prev) => prev.slice(1))
   }, [])
 
-  // Handle swipes or arrow-key logic
+  // 4. Swiping logic
   const handleSwipe = useCallback(
     (direction: "left" | "right") => {
       if (projects.length > 0) {
-        // Set exit direction so the card animates properly
         setExitX(direction === "left" ? -300 : 300)
 
         if (direction === "right") {
-          // "Accept" flow
           setShowSuccessScreen(true)
           setTimeout(() => {
             setShowSuccessScreen(false)
             removeProject()
           }, 1500)
         } else {
-          // "Reject" flow
           setShowRejectionScreen(true)
           setTimeout(() => {
             setShowRejectionScreen(false)
@@ -79,10 +119,10 @@ export default function ProjectFeed() {
         }
       }
     },
-    [projects, removeProject],
+    [projects, removeProject]
   )
 
-  // Listen for left/right arrow keys
+  // 5. Keyboard arrows
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "ArrowLeft") {
@@ -96,19 +136,21 @@ export default function ProjectFeed() {
     return () => window.removeEventListener("keydown", handleKeyDown)
   }, [handleSwipe])
 
+  // 6. Now do the loading check
+  if (loading) {
+    return <div className="text-center p-4">Loading projects...</div>
+  }
+
   return (
     <div className="min-h-screen bg-black text-white p-4">
       <h1 className="text-3xl font-bold text-center mb-8">Project Feed</h1>
       <div className="max-w-md mx-auto relative">
         <AnimatePresence>
-          {/* Show the top card if we have projects and aren't in success/rejection screens */}
           {projects.length > 0 && !showSuccessScreen && !showRejectionScreen && (
             <motion.div
               key={projects[0].id}
-              // Appear
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1, x: 0 }}
-              // Exit to left or right, based on exitX state
               exit={{
                 opacity: 0,
                 x: exitX,
@@ -131,19 +173,17 @@ export default function ProjectFeed() {
             </motion.div>
           )}
 
-          {/* Success screen (Right swipe) */}
           {showSuccessScreen && <SuccessScreen project={projects[0]} />}
-
-          {/* Rejection screen (Left swipe) */}
           {showRejectionScreen && <RejectionScreen project={projects[0]} />}
         </AnimatePresence>
 
-        {/* No more projects */}
-        {projects.length === 0 && !showSuccessScreen && !showRejectionScreen && (
-          <div className="text-center text-neutral-500 mt-8">
-            No more projects available. Check back later!
-          </div>
-        )}
+        {projects.length === 0 &&
+          !showSuccessScreen &&
+          !showRejectionScreen && (
+            <div className="text-center text-neutral-500 mt-8">
+              No more projects available. Check back later!
+            </div>
+          )}
       </div>
     </div>
   )
@@ -153,44 +193,27 @@ export default function ProjectFeed() {
 /* Project Card Component                            */
 /* ------------------------------------------------- */
 
-interface FeedProject {
-  id: number
-  title: string
-  short_description?: string
-  big_description?: string
-  tags?: string[]
-  skills_required?: string[]
-  goals?: string
-  duration?: string
-  clerkId?: string
-  name?: string
-  // Add additional fields if needed
-}
-
-interface ProjectCardProps {
+function ProjectCard({
+  project,
+  onSwipe,
+}: {
   project: FeedProject
   onSwipe: (direction: "left" | "right") => void
-}
-
-function ProjectCard({ project, onSwipe }: ProjectCardProps) {
+}) {
   return (
     <Card className="bg-neutral-900 border-neutral-800">
       <CardHeader>
-        {/* Title */}
         <CardTitle className="text-2xl font-bold">{project.title}</CardTitle>
-        {/* “Owner” substitute – you could use clerkId, name, or remove entirely */}
         <CardDescription className="text-neutral-400">
           Owned by: {project.clerkId || project.name || "Unknown"}
         </CardDescription>
       </CardHeader>
 
       <CardContent>
-        {/* Display short_description or big_description */}
         <p className="text-gray-300 mb-4">
           {project.short_description || project.big_description}
         </p>
 
-        {/* Tags */}
         {project.tags && project.tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
             {project.tags.map((tag) => (
@@ -205,7 +228,6 @@ function ProjectCard({ project, onSwipe }: ProjectCardProps) {
           </div>
         )}
 
-        {/* Duration / Goals (if available) */}
         <div className="space-y-2 text-sm text-gray-400">
           {project.duration && (
             <div className="flex items-center">
@@ -221,7 +243,6 @@ function ProjectCard({ project, onSwipe }: ProjectCardProps) {
           )}
         </div>
 
-        {/* Skills Required */}
         {project.skills_required && project.skills_required.length > 0 && (
           <div className="mt-4">
             <h4 className="text-gray-300 font-semibold mb-2">
@@ -237,7 +258,6 @@ function ProjectCard({ project, onSwipe }: ProjectCardProps) {
       </CardContent>
 
       <CardFooter className="flex justify-between">
-        {/* Left (Reject) */}
         <Button
           variant="outline"
           size="icon"
@@ -246,8 +266,6 @@ function ProjectCard({ project, onSwipe }: ProjectCardProps) {
         >
           <X className="h-4 w-4" />
         </Button>
-
-        {/* Right (Accept) */}
         <Button
           variant="outline"
           size="icon"
@@ -265,7 +283,7 @@ function ProjectCard({ project, onSwipe }: ProjectCardProps) {
 /* Success Screen (Right Swipe)                      */
 /* ------------------------------------------------- */
 
-function SuccessScreen({ project }: { project: FeedProject }) {
+function SuccessScreen({ project }: { project: FeedProject | undefined }) {
   if (!project) return null
   return (
     <motion.div
@@ -275,7 +293,7 @@ function SuccessScreen({ project }: { project: FeedProject }) {
       className="bg-green-900 p-6 rounded-lg text-center"
     >
       <h2 className="text-2xl font-bold mb-4">Collaboration Request Sent!</h2>
-      <p className="mb-2">You've requested to collaborate on:</p>
+      <p className="mb-2">You&apos;ve requested to collaborate on:</p>
       <p className="text-xl font-semibold mb-4">{project.title}</p>
       <p>The project owner will be notified of your interest.</p>
     </motion.div>
@@ -286,7 +304,7 @@ function SuccessScreen({ project }: { project: FeedProject }) {
 /* Rejection Screen (Left Swipe)                     */
 /* ------------------------------------------------- */
 
-function RejectionScreen({ project }: { project: FeedProject }) {
+function RejectionScreen({ project }: { project: FeedProject | undefined }) {
   if (!project) return null
   return (
     <motion.div
@@ -296,9 +314,9 @@ function RejectionScreen({ project }: { project: FeedProject }) {
       className="bg-red-900 p-6 rounded-lg text-center"
     >
       <h2 className="text-2xl font-bold mb-4">Project Skipped</h2>
-      <p className="mb-2">You've passed on:</p>
+      <p className="mb-2">You&apos;ve passed on:</p>
       <p className="text-xl font-semibold mb-4">{project.title}</p>
-      <p>Don't worry, there are more projects to explore!</p>
+      <p>Don&apos;t worry, there are more projects to explore!</p>
     </motion.div>
   )
 }

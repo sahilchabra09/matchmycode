@@ -1,7 +1,15 @@
 "use client";
 
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
-import { useState, useEffect } from "react";
+import { useState, useEffect, ChangeEvent, FormEvent } from "react";
+
+// Updated component with value prop
+type PlaceholdersAndVanishInputProps = {
+  placeholders: string[];
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onSubmit: (e: FormEvent<HTMLFormElement>) => Promise<void>;
+  value: string;
+};
 
 export function UserSearch() {
   const placeholders = [
@@ -14,6 +22,7 @@ export function UserSearch() {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [inputValue, setInputValue] = useState("");
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -22,20 +31,25 @@ export function UserSearch() {
     return () => clearInterval(interval);
   }, []);
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
     
-    const input = e.currentTarget.querySelector("input")?.value || "";
+    const inputElement = e.currentTarget.querySelector("input");
+    const currentPlaceholder = inputElement?.placeholder || "";
 
     try {
       const params = new URLSearchParams();
-      const activePlaceholder = placeholders[currentPlaceholderIndex].toLowerCase();
+      const searchQuery = inputValue.trim();
 
-      if (activePlaceholder.includes("skills")) params.set("skills", input);
-      else if (activePlaceholder.includes("interests")) params.set("interests", input);
-      else if (activePlaceholder.includes("tags")) params.set("tags", input);
+      if (currentPlaceholder.toLowerCase().includes("skills")) {
+        params.set("skills", searchQuery);
+      } else if (currentPlaceholder.toLowerCase().includes("interests")) {
+        params.set("interests", searchQuery);
+      } else if (currentPlaceholder.toLowerCase().includes("tags")) {
+        params.set("tags", searchQuery);
+      }
 
       const response = await fetch(
         `https://pleasant-mullet-unified.ngrok-free.app/user/search_users?${params}`,
@@ -48,9 +62,7 @@ export function UserSearch() {
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
       const data = await response.json();
       setSearchResults(Array.isArray(data) ? data : []);
@@ -60,31 +72,28 @@ export function UserSearch() {
     } finally {
       setIsLoading(false);
     }
-};
+  };
 
   const parseArray = (str: string) => {
     try {
       return JSON.parse(str.replace(/{/g, "[").replace(/}/g, "]"));
     } catch {
-      return str.replace(/[{}"]/g, "").split(",");
+      return str.replace(/[{}"]/g, "").split(",").map(s => s.trim());
     }
   };
 
   return (
     <div className="flex flex-col items-center min-h-screen px-4 pt-20">
-    <div className="w-full max-w-2xl fixed top-4">
-      <PlaceholdersAndVanishInput
-        placeholders={placeholders}
-        onChange={() => {}}
-        onSubmit={onSubmit}
-      />
-    </div>
-
-    {error && (
-      <div className="mt-24 text-red-500">
-        Error: {error}
+      <div className="w-full max-w-2xl fixed top-4">
+        <PlaceholdersAndVanishInput
+          placeholders={placeholders}
+          onChange={(e) => setInputValue(e.target.value)}
+          onSubmit={onSubmit}
+          value={inputValue}
+        />
       </div>
-    )}
+
+      {error && <div className="mt-24 text-red-500">Error: {error}</div>}
 
       {isLoading && <p className="mt-24 text-gray-500">Searching users...</p>}
 

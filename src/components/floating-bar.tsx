@@ -30,7 +30,7 @@ export default function FloatingDockDemo() {
     {
       title: "Find Hackathons",
       icon: <IconMapPin className="h-full w-full text-neutral-300" />, // Icon for hackathons
-      href: "/hackathons",
+      href: "/public-hackathons",
     },
     {
       title: "Find Mentor",

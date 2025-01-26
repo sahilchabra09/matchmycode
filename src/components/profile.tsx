@@ -183,7 +183,7 @@ export default function Profile() {
           </TabsList>
 
           <TabsContent value="projects">
-            <ProjectSection />
+            
           </TabsContent>
 
           <TabsContent value="skills">

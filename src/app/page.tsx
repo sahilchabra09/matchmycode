@@ -33,16 +33,17 @@ export default function Home() {
                   endorsements.
                 </p>
                 <Button
-  borderRadius="1.75rem"
-  className="text-lg px-8 py-4 relative overflow-hidden 
-    bg-gradient-to-br from-black via-zinc-900 to-black
-    border border-gray-700/50 hover:border-blue-400/30
-    shadow-[0_0_15px_-3px_rgba(96,165,250,0.1)]
-    hover:shadow-[0_0_25px_-3px_rgba(96,165,250,0.2)]
-    transition-all duration-300 group"
->
-        Login/Signup
-      </Button>
+                  borderRadius="1.75rem"
+                  className="text-lg px-8 py-4 relative overflow-hidden 
+                    bg-gradient-to-br from-black via-zinc-900 to-black
+                    border border-gray-700/50 hover:border-blue-400/30
+                    shadow-[0_0_15px_-3px_rgba(96,165,250,0.1)]
+                    hover:shadow-[0_0_25px_-3px_rgba(96,165,250,0.2)]
+                    transition-all duration-300 group"
+                  onClick={() => window.location.href = '/sign-in'}
+                >
+                  Login/Signup
+                </Button>
               </motion.div>
             </div>
           </section>
