@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 export interface CalendarProps {
   selectedDate?: Date;
-  onChange: (date: Date | undefined) => void; // Required prop
+  onChange: (date: Date | undefined) => void;
   className?: string;
   minDate?: Date;
 }
@@ -25,76 +25,80 @@ export function Calendar({
   className,
   minDate,
 }: CalendarProps) {
-  const [currentDate, setCurrentDate] = useState(selectedDate || new Date());
+  const [currentDate, setCurrentDate] = useState<Date>(selectedDate ?? new Date());
 
   const handleDateClick = (date: Date) => {
-    onChange(date); // Now properly calling the required onChange
+    if (minDate && date < minDate) return;
+    onChange(date);
   };
 
-  const renderDays = () => {
-    // Show partial weeks from the first day of the displayed month
-    const start = startOfWeek(startOfMonth(currentDate));
-    const end = endOfWeek(endOfMonth(currentDate));
-    const days: Date[] = [];
-    let day = start;
+  const generateCalendarDays = () => {
+    const monthStart = startOfMonth(currentDate);
+    const monthEnd = endOfMonth(currentDate);
+    const startDate = startOfWeek(monthStart);
+    const endDate = endOfWeek(monthEnd);
 
-    while (day <= end) {
-      days.push(day);
-      day = addDays(day, 1);
+    const days: Date[] = [];
+    let currentDay = startDate;
+
+    while (currentDay <= endDate) {
+      days.push(currentDay);
+      currentDay = addDays(currentDay, 1);
     }
 
-    return days.map((calendarDay) => {
-      // Prevent error if selectedDate is undefined
-      const isSelected = selectedDate && isSameDay(calendarDay, selectedDate);
-      const disabled = minDate && calendarDay < minDate;
+    return days;
+  };
+
+ const renderDayCells = () => {
+    return generateCalendarDays().map((day) => {
+      const isSelected = selectedDate && isSameDay(day, selectedDate);
+      const disabled = minDate ? day < minDate : false;
 
       return (
         <button
-          key={calendarDay.toISOString()}
-          onClick={(e) => {
-            e.preventDefault();
-            if (!disabled) {
-              handleDateClick(calendarDay);
-            }
-          }}
+          key={day.toISOString()}
+          type="button"
+          onClick={() => !disabled && handleDateClick(day)}
           disabled={disabled}
           className={cn(
             "px-3 py-1 text-sm rounded-md transition-colors",
-            // Selected date style
             isSelected && "bg-blue-500 text-white",
-            // Highlight today's date
-            isToday(calendarDay) && "border border-blue-500",
-            // Disabled style
+            isToday(day) && !isSelected && "border border-blue-500",
             disabled
               ? "text-gray-400 cursor-not-allowed"
-              : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              : "hover:bg-gray-100 dark:hover:bg-gray-700",
+            "text-gray-700 dark:text-gray-300"
           )}
+          aria-disabled={disabled}
         >
-          {calendarDay.getDate()}
+          {format(day, "d")} {/* Ensure this returns a string */}
         </button>
       );
     });
   };
 
+  const handleMonthNavigation = (direction: "prev" | "next") => {
+    setCurrentDate(prev => {
+      const newMonth = direction === "prev" 
+        ? prev.getMonth() - 1 
+        : prev.getMonth() + 1;
+      return new Date(prev.getFullYear(), newMonth, 1);
+    });
+  };
+
   return (
-    <div
-      className={cn(
-        "p-4 border rounded-lg shadow-sm",
-        "bg-white border-gray-200", // Light mode
-        "dark:bg-gray-900 dark:border-gray-700", // Dark mode
-        className
-      )}
-    >
+    <div className={cn(
+      "p-4 border rounded-lg shadow-sm bg-white dark:bg-gray-900",
+      "border-gray-200 dark:border-gray-700",
+      className
+    )}>
       {/* Month Navigation */}
       <div className="flex items-center justify-between mb-4">
         <button
-          onClick={(e) => {
-            e.preventDefault();
-            setCurrentDate(
-              (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
-            );
-          }}
+          type="button"
+          onClick={() => handleMonthNavigation("prev")}
           className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+          aria-label="Previous month"
         >
           &lt;
         </button>
@@ -102,21 +106,18 @@ export function Calendar({
           {format(currentDate, "MMMM yyyy")}
         </h2>
         <button
-          onClick={(e) => {
-            e.preventDefault();
-            setCurrentDate(
-              (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
-            );
-          }}
+          type="button"
+          onClick={() => handleMonthNavigation("next")}
           className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
+          aria-label="Next month"
         >
           &gt;
         </button>
       </div>
 
-      {/* Weekdays Header */}
+      {/* Weekday Headers */}
       <div className="grid grid-cols-7 gap-1 mb-2">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(day => (
           <div
             key={day}
             className="text-center text-sm font-medium text-gray-600 dark:text-gray-400"
@@ -126,8 +127,10 @@ export function Calendar({
         ))}
       </div>
 
-      {/* Calendar Days */}
-      <div className="grid grid-cols-7 gap-1">{renderDays()}</div>
+      {/* Calendar Grid */}
+      <div className="grid grid-cols-7 gap-1">
+        {renderDayCells()}
+      </div>
     </div>
   );
 }

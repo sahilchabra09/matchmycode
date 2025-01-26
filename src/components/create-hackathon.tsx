@@ -12,13 +12,15 @@ import {
 } from "@/components/ui/hs_ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/hs_ui/label";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 import { Popover, PopoverContent, PopoverTrigger } from "@radix-ui/react-popover";
 import { Calendar } from "@/components/ui/hs_ui/calendar";
 import { format, isBefore } from "date-fns";
 import { Textarea } from "@/components/ui/hs_ui/textarea";
 import { CalendarIcon } from "lucide-react";
 import { Select } from "@/components/ui/hs_ui/Select";
+import { BasicData } from "./ui/create-hackathon-ui/Basic-data";
+import { DatesSection } from "./ui/create-hackathon-ui/date-section";
 
 export function CreateHackathonDialog() {
     const [formData, setFormData] = useState({
@@ -182,420 +184,210 @@ export function CreateHackathonDialog() {
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="grid gap-6">
             {/* Basic Information */}
-            <div className="space-y-6 rounded-lg border p-4">
-              <h3 className="text-lg font-semibold">Basic Information</h3>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {/* Title */}
-                <div className="sm:col-span-2">
-                  <Label htmlFor="title" className="text-sm font-medium">
-                    Title
-                  </Label>
-                  <Input
-                    id="title"
-                    name="title"
-                    placeholder="Hackathon Title"
-                    value={formData.title}
-                    onChange={handleChange}
-                    required
-                    className="mt-1.5"
-                  />
-                </div>
-
-                {/* Description */}
-                <div className="sm:col-span-2">
-                  <Label htmlFor="description" className="text-sm font-medium">
-                    Description
-                  </Label>
-                  <Textarea
-                    id="description"
-                    name="description"
-                    placeholder="Hackathon Description"
-                    value={formData.description}
-                    onChange={handleChange}
-                    required
-                    className="mt-1.5 min-h-[100px]"
-                  />
-                </div>
-
-                {/* Category */}
-                <div className="sm:col-span-2">
-                  <Label htmlFor="category" className="text-sm font-medium">
-                    Category
-                  </Label>
-                  <Input
-                    id="category"
-                    name="category"
-                    placeholder="Hackathon Category (e.g., AI, Web Development)"
-                    value={formData.category}
-                    onChange={handleChange}
-                    required
-                    className="mt-1.5"
-                  />
-                </div>
-              </div>
+            <div>
+            
+            <BasicData 
+      formData={{
+        title: formData.title,
+        description: formData.description,
+        category: formData.category
+      }}
+      handleChange={handleChange}
+    />
             </div>
-
             {/* Dates */}
-            <div className="space-y-6 rounded-lg border p-4">
-  <h3 className="text-lg font-semibold">Important Dates</h3>
-  <div className="grid gap-4 sm:grid-cols-2">
-    {/* Registration Deadline */}
-    <div>
-      <Label className="text-sm font-medium">
-        Registration Deadline
-      </Label>
-      <Popover
-        open={isCalendarOpen.registration_deadline}
-        onOpenChange={(open) =>
-          setIsCalendarOpen((prev) => ({
-            ...prev,
-            registration_deadline: open,
-          }))
-        }
-      >
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              "w-full mt-1.5 justify-start text-left font-normal",
-              !formData.registration_deadline && "text-muted-foreground"
-            )}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {formData.registration_deadline
-              ? format(new Date(formData.registration_deadline), "PPP")
-              : "Pick a date"}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto z-50 p-0" align="start">
-          <Calendar
-            selectedDate={formData.registration_deadline ? new Date(formData.registration_deadline) : undefined}
-            onChange={(date) => {
-              handleDateTimeChange(
-                "registration_deadline",
-                "registration_time",
-                date,
-                formData.registration_time
-              );
-              setIsCalendarOpen((prev) => ({
-                ...prev,
-                registration_deadline: false,
-              }));
-            }}
-          />
-        </PopoverContent>
-      </Popover>
-      <Input
-        type="time"
-        name="registration_time"
-        value={formData.registration_time}
-        onChange={(e) => {
-          const time = e.target.value;
-          const date = formData.registration_deadline
-            ? new Date(formData.registration_deadline)
-            : undefined;
-          handleDateTimeChange("registration_deadline", "registration_time", date, time);
-        }}
-        className="mt-1.5"
-      />
-    </div>
-
-    {/* Start Date */}
-    <div>
-      <Label className="text-sm font-medium">Start Date</Label>
-      <Popover
-        open={isCalendarOpen.start_date}
-        onOpenChange={(open) =>
-          setIsCalendarOpen((prev) => ({
-            ...prev,
-            start_date: open,
-          }))
-        }
-      >
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              "w-full mt-1.5 justify-start text-left font-normal",
-              !formData.start_date && "text-muted-foreground"
-            )}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {formData.start_date
-              ? format(new Date(formData.start_date), "PPP")
-              : "Pick a date"}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto z-50 p-0" align="start">
-          <Calendar
-            selectedDate={formData.start_date ? new Date(formData.start_date) : undefined}
-            onChange={(date) => {
-              handleDateTimeChange(
-                "start_date",
-                "start_time",
-                date,
-                formData.start_time
-              );
-              setIsCalendarOpen((prev) => ({
-                ...prev,
-                start_date: false,
-              }));
-            }}
-          />
-        </PopoverContent>
-      </Popover>
-      <Input
-        type="time"
-        name="start_time"
-        value={formData.start_time}
-        onChange={(e) => {
-          const time = e.target.value;
-          const date = formData.start_date
-            ? new Date(formData.start_date)
-            : undefined;
-          handleDateTimeChange("start_date", "start_time", date, time);
-        }}
-        className="mt-1.5"
-      />
-      {errors.start_date && (
-        <p className="mt-1.5 text-sm text-destructive">
-          {errors.start_date}
-        </p>
-      )}
-    </div>
-
-    {/* End Date */}
-    <div>
-      <Label className="text-sm font-medium">End Date</Label>
-      <Popover
-        open={isCalendarOpen.end_date}
-        onOpenChange={(open) =>
-          setIsCalendarOpen((prev) => ({ ...prev, end_date: open }))
-        }
-      >
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            className={cn(
-              "w-full mt-1.5 justify-start text-left font-normal",
-              !formData.end_date && "text-muted-foreground"
-            )}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {formData.end_date
-              ? format(new Date(formData.end_date), "PPP")
-              : "Pick a date"}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0 z-50" align="start">
-          <Calendar
-            selectedDate={formData.end_date ? new Date(formData.end_date) : undefined}
-            onChange={(date) => {
-              handleDateTimeChange(
-                "end_date",
-                "end_time",
-                date,
-                formData.end_time
-              );
-              setIsCalendarOpen((prev) => ({
-                ...prev,
-                end_date: false,
-              }));
-            }}
-          />
-        </PopoverContent>
-      </Popover>
-      <Input
-        type="time"
-        name="end_time"
-        value={formData.end_time}
-        onChange={(e) => {
-          const time = e.target.value;
-          const date = formData.end_date
-            ? new Date(formData.end_date)
-            : undefined;
-          handleDateTimeChange("end_date", "end_time", date, time);
-        }}
-        className="mt-1.5"
-      />
-      {errors.end_date && (
-        <p className="mt-1.5 text-sm text-destructive">
-          {errors.end_date}
-        </p>
-      )}
-    </div>
-  </div>
-</div>
+        <div>
+          <div className="space-y-6 rounded-lg border p-4">
+            <h3 className="text-lg font-semibold">Important Dates</h3>
+            <DatesSection
+                formData={{
+                  registration_deadline: formData.registration_deadline,
+                  registration_time: formData.registration_time,
+                  start_date: formData.start_date,
+                  start_time: formData.start_time,
+                  end_date: formData.end_date,
+                  end_time: formData.end_time
+                }}
+                isCalendarOpen={isCalendarOpen}
+                setIsCalendarOpen={setIsCalendarOpen}
+                handleDateTimeChange={handleDateTimeChange}
+                errors={errors}/>
+          </div>
 
             {/* Event Details */}
+        <div>  
             <div className="space-y-6 rounded-lg border p-4">
               <h3 className="text-lg font-semibold">Event Details</h3>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {/* Mode */}
-                <div className="flex flex-col">
-                  <Label htmlFor="mode" className="text-sm font-medium mb-1.5">
-                    Mode
-                  </Label>
-                  <Select
-                    options={[
-                      { label: "Online", value: "online" },
-                      { label: "Offline", value: "offline" },
-                    ]}
-                    value={formData.mode}
-                    placeholder="Select Mode"
-                    onChange={(value) =>
-                      setFormData((prev) => ({ ...prev, mode: value }))
-                    }
-                  />
-                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                      {/* Mode */}
+                      <div className="flex flex-col">
+                        <Label htmlFor="mode" className="text-sm font-medium mb-1.5">
+                          Mode
+                        </Label>
+                        <Select
+                          options={[
+                            { label: "Online", value: "online" },
+                            { label: "Offline", value: "offline" },
+                          ]}
+                          value={formData.mode}
+                          placeholder="Select Mode"
+                          onChange={(value) =>
+                            setFormData((prev) => ({ ...prev, mode: value }))
+                          }
+                        />
+                      </div>
 
-                {/* Prize Money */}
-                <div className="flex flex-col">
-                  <Label
-                    htmlFor="prize_money"
-                    className="text-sm font-medium mb-1.5"
-                  >
-                    Prize Money
-                  </Label>
-                  <Input
-                    id="prize_money"
-                    name="prize_money"
-                    type="number"
-                    placeholder="Prize Money"
-                    value={formData.prize_money}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        prize_money: Number(e.target.value),
-                      }))
-                    }
-                    required
-                  />
-                </div>
+                      {/* Prize Money */}
+                      <div className="flex flex-col">
+                        <Label
+                          htmlFor="prize_money"
+                          className="text-sm font-medium mb-1.5"
+                        >
+                          Prize Money
+                        </Label>
+                        <Input
+                          id="prize_money"
+                          name="prize_money"
+                          type="number"
+                          placeholder="Prize Money"
+                          value={formData.prize_money}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              prize_money: Number(e.target.value),
+                            }))
+                          }
+                          required
+                        />
+                      </div>
 
-                {/* Registration Fees */}
-                <div className="flex flex-col">
-                  <Label
-                    htmlFor="registration_fees"
-                    className="text-sm font-medium mb-1.5"
-                  >
-                    Registration Fees
-                  </Label>
-                  <Input
-                    id="registration_fees"
-                    name="registration_fees"
-                    placeholder="Registration Fees"
-                    value={formData.registration_fees}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
+                      {/* Registration Fees */}
+                      <div className="flex flex-col">
+                        <Label
+                          htmlFor="registration_fees"
+                          className="text-sm font-medium mb-1.5"
+                        >
+                          Registration Fees
+                        </Label>
+                        <Input
+                          id="registration_fees"
+                          name="registration_fees"
+                          placeholder="Registration Fees"
+                          value={formData.registration_fees}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
 
-                {/* Location (Conditional on Mode) */}
-                {formData.mode === "offline" && (
-                  <>
-                    <div className="flex flex-col">
-                      <Label
-                        htmlFor="location"
-                        className="text-sm font-medium mb-1.5"
-                      >
-                        Location
-                      </Label>
-                      <Input
-                        id="location"
-                        name="location"
-                        placeholder="Event Location"
-                        value={formData.location}
-                        onChange={handleChange}
-                        required
-                      />
+                      {/* Location (Conditional on Mode) */}
+                      {formData.mode === "offline" && (
+                        <>
+                          <div className="flex flex-col">
+                            <Label
+                              htmlFor="location"
+                              className="text-sm font-medium mb-1.5"
+                            >
+                              Location
+                            </Label>
+                            <Input
+                              id="location"
+                              name="location"
+                              placeholder="Event Location"
+                              value={formData.location}
+                              onChange={handleChange}
+                              required
+                            />
+                          </div>
+
+                          <div className="flex flex-col">
+                            <Label
+                              htmlFor="address"
+                              className="text-sm font-medium mb-1.5"
+                            >
+                              Address
+                            </Label>
+                            <Input
+                              id="address"
+                              name="address"
+                              placeholder="Event Address"
+                              value={formData.address}
+                              onChange={handleChange}
+                              required
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {/* Themes */}
+                      <div className="sm:col-span-2 flex flex-col">
+                        <Label htmlFor="themes" className="text-sm font-medium mb-1.5">
+                          Themes
+                        </Label>
+                        <Input
+                          id="themes"
+                          name="themes"
+                          placeholder="Themes (comma-separated)"
+                          value={formData.themes}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+
+                      {/* Tags */}
+                      <div className="sm:col-span-2 flex flex-col">
+                        <Label htmlFor="tags" className="text-sm font-medium mb-1.5">
+                          Tags
+                        </Label>
+                        <Input
+                          id="tags"
+                          name="tags"
+                          placeholder="Tags (comma-separated)"
+                          value={formData.tags}
+                          onChange={handleChange}
+                          required
+                        />
+                      </div>
+
+                      {/* Rules */}
+                      <div className="sm:col-span-2 flex flex-col">
+                        <Label htmlFor="rules" className="text-sm font-medium mb-1.5">
+                          Rules
+                        </Label>
+                        <Textarea
+                          id="rules"
+                          name="rules"
+                          placeholder="Rules (comma-separated)"
+                          value={formData.rules}
+                          onChange={handleChange}
+                          required
+                          className="min-h-[100px]"
+                        />
+                      </div>
+
+                      {/* Additional Info */}
+                      <div className="sm:col-span-2 flex flex-col">
+                        <Label
+                          htmlFor="additional_info"
+                          className="text-sm font-medium mb-1.5"
+                        >
+                          Additional Info 
+                        </Label>
+                        <Textarea
+                          id="additional_info"
+                          name="additional_info"
+                          placeholder="Additional Info (JSON format)"
+                          value={formData.additional_info}
+                          onChange={handleChange}
+                          className="min-h-[100px]"
+                        />
+                      </div>
                     </div>
-
-                    <div className="flex flex-col">
-                      <Label
-                        htmlFor="address"
-                        className="text-sm font-medium mb-1.5"
-                      >
-                        Address
-                      </Label>
-                      <Input
-                        id="address"
-                        name="address"
-                        placeholder="Event Address"
-                        value={formData.address}
-                        onChange={handleChange}
-                        required
-                      />
-                    </div>
-                  </>
-                )}
-
-                {/* Themes */}
-                <div className="sm:col-span-2 flex flex-col">
-                  <Label htmlFor="themes" className="text-sm font-medium mb-1.5">
-                    Themes
-                  </Label>
-                  <Input
-                    id="themes"
-                    name="themes"
-                    placeholder="Themes (comma-separated)"
-                    value={formData.themes}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                {/* Tags */}
-                <div className="sm:col-span-2 flex flex-col">
-                  <Label htmlFor="tags" className="text-sm font-medium mb-1.5">
-                    Tags
-                  </Label>
-                  <Input
-                    id="tags"
-                    name="tags"
-                    placeholder="Tags (comma-separated)"
-                    value={formData.tags}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                {/* Rules */}
-                <div className="sm:col-span-2 flex flex-col">
-                  <Label htmlFor="rules" className="text-sm font-medium mb-1.5">
-                    Rules
-                  </Label>
-                  <Textarea
-                    id="rules"
-                    name="rules"
-                    placeholder="Rules (comma-separated)"
-                    value={formData.rules}
-                    onChange={handleChange}
-                    required
-                    className="min-h-[100px]"
-                  />
-                </div>
-
-                {/* Additional Info */}
-                <div className="sm:col-span-2 flex flex-col">
-                  <Label
-                    htmlFor="additional_info"
-                    className="text-sm font-medium mb-1.5"
-                  >
-                    Additional Info 
-                  </Label>
-                  <Textarea
-                    id="additional_info"
-                    name="additional_info"
-                    placeholder="Additional Info (JSON format)"
-                    value={formData.additional_info}
-                    onChange={handleChange}
-                    className="min-h-[100px]"
-                  />
-                </div>
-              </div>
             </div>
-          </div>
+        </div>
+    </div>
+    </div>
+          
+       
 
           {/* Submit Button */}
           <Button type="submit" className="w-full">
@@ -606,3 +398,4 @@ export function CreateHackathonDialog() {
     </Dialog>
   );
 }
+

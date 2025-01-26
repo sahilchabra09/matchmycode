@@ -2,24 +2,24 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-interface SelectProps {
-  options: { label: string; value: string }[];
-  value: string;
+interface SelectProps<T extends string> {
+  options: { label: string; value: T }[];
+  value: T;
   placeholder?: string;
-  onChange: (value: string) => void;
+  onChange: (value: T) => void;
   className?: string;
 }
 
-export function Select({
+export function Select<T extends string>({
   options,
   value,
   placeholder,
   onChange,
   className,
-}: SelectProps) {
+}: SelectProps<T>) {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleSelect = (val: string) => {
+  const handleSelect = (val: T) => {
     onChange(val);
     setIsOpen(false);
   };
@@ -31,8 +31,8 @@ export function Select({
         onClick={() => setIsOpen((prev) => !prev)}
         className={cn(
           "w-full px-4 py-2 text-left border rounded-md shadow-sm focus:outline-none",
-          "bg-background border-input text-foreground", // Default styles
-          !value && "text-muted-foreground" // Placeholder text color
+          "bg-background border-input text-foreground",
+          !value && "text-muted-foreground"
         )}
       >
         <span>
@@ -48,11 +48,7 @@ export function Select({
       </button>
 
       {isOpen && (
-        <ul
-          className={cn(
-            "absolute z-10 w-full mt-1 max-h-60 overflow-auto border rounded-md shadow-lg bg-background text-foreground"
-          )}
-        >
+        <ul className="absolute z-10 w-full mt-1 max-h-60 overflow-auto border rounded-md shadow-lg bg-background text-foreground">
           {options.map((option) => (
             <li
               key={option.value}

@@ -9,6 +9,8 @@ export default function HackathonsPage() {
       <p className="mb-6 text-lg">
         Create and manage hackathons to connect with developers and showcase your innovative ideas.
       </p>
+      {/* WILL BE ADDED TO ORGANISER DASHBOARD
+       */}
       <CreateHackathonDialog />
     </div>
   );
