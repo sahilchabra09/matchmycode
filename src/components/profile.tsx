@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Github, Linkedin, Twitter, Mail, MessageCircle, Star } from "lucide-react"
 import ProjectSection from "./project-section"
 import SkillChart from "./skill-chart"
-import CollaboratorSection from "./collaborator-section"
+import CollaboratorSection from "./Myreview"
 
 interface UserData {
   average_rating: string

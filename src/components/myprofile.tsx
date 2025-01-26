@@ -1,8 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { useUser } from "@clerk/nextjs"
-import Image from "next/image"
+import { SignOutButton, useUser } from "@clerk/nextjs"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -15,11 +14,14 @@ import {
   Mail,
   MessageCircle,
   Phone,
+  LogOut
 } from "lucide-react"
 
 import ProjectSection from "./project-section"
 import SkillChart from "./skill-chart"
-import CollaboratorSection from "./collaborator-section"
+
+import Link from "next/link"
+import MyReview from "./Myreview"
 
 interface UserDetails {
   clerkId: string
@@ -130,13 +132,21 @@ export default function MyProfile() {
 
             {/* Action Buttons (unchanged) */}
             <div className="flex flex-wrap justify-center md:justify-start gap-4 mb-6">
+              <Link href={`/edit-profile`}>
               <Button variant="outline" className="rounded-full">
                 Edit Profile
               </Button>
+              </Link>
               <Button variant="outline" className="rounded-full">
                 <MessageCircle className="w-4 h-4 mr-2" />
                 Settings
               </Button>
+              <SignOutButton>
+              <Button variant="outline" className="rounded-full">
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+              </SignOutButton>
             </div>
 
             {/* Socials: show first few as icons or dynamically loop them */}
@@ -201,15 +211,19 @@ export default function MyProfile() {
           </TabsContent>
 
           <TabsContent value="skills">
-            <Card className="bg-gray-900 border-gray-800">
+            <Card className=" border-gray-800">
               <CardContent className="pt-6">
                 <SkillChart />
               </CardContent>
             </Card>
           </TabsContent>
 
-          <TabsContent value="collaborators">
-            <CollaboratorSection />
+          <TabsContent value="Reviews">
+          <Card className=" border-gray-800">
+              <CardContent className="pt-6">
+                <MyReview />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

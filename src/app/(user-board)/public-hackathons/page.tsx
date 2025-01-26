@@ -1,27 +1,22 @@
 "use client"
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/hs_ui/button"
-import { 
-  MapPin, 
-  CalendarClock, 
-  Terminal, 
-  Trophy, 
-  User, 
+import { Button } from "@/components/ui/button"
+import {
+  MapPin,
+  CalendarClock,
+  Terminal,
+  Trophy,
+  User,
   Wallet,
   Rocket,
-  AlertTriangle
+  AlertTriangle,
+  Users,
+  UserPlus,
 } from "lucide-react"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-  DialogTrigger,
-} from "@/components/ui/hs_ui/dialog"
+import { CreateTeamDialog } from "@/components/create-team-dialog"
+import { JoinTeamDialog } from "@/components/join-team-dialog"
 
 interface Hackathon {
   id: number
@@ -35,154 +30,66 @@ interface Hackathon {
   registration_deadline: string
 }
 
-function RegistrationDialog({ 
-  hackathonId,
-  userStartId 
-}: { 
-  hackathonId: number 
-  userStartId: string 
-}) {
-  const handleConfirm = async () => {
-    try {
-      const response = await fetch(
-        `https://pleasant-mullet-unified.ngrok-free.app/hackathon/${hackathonId}/register_for_hackathon`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ user_startId: userStartId })
-        }
-      )
-
-      if (!response.ok) throw new Error('Registration failed')
-      // Add success handling here
-    } catch (error) {
-      console.error("Registration error:", error)
-      // Add error handling here
-    }
-  }
-
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button
-          variant="default"
-          className="w-full mt-6 py-3 rounded-lg font-medium text-sm bg-green-800/30 hover:bg-green-800/40 text-green-400"
-        >
-          <Rocket className="w-4 h-4 mr-2" />
-          Join Challenge →
-        </Button>
-      </DialogTrigger>
-      
-      <DialogContent className="border-neutral-800 bg-neutral-900 text-white">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">Confirm Registration</DialogTitle>
-          <DialogDescription className="text-neutral-400">
-            You're about to register for this hackathon
-          </DialogDescription>
-        </DialogHeader>
-        
-        <div className="py-4 space-y-2 text-sm">
-          <p className="flex items-center gap-2 text-neutral-300">
-            <User className="w-4 h-4" />
-            User ID: {userStartId}
-          </p>
-          <p className="flex items-center gap-2 text-yellow-400">
-            <AlertTriangle className="w-4 h-4" />
-            This action cannot be undone
-          </p>
-        </div>
-
-        <DialogFooter>
-          <Button 
-            variant="outline" 
-            className="border-neutral-700 text-neutral-300 hover:bg-neutral-800"
-          >
-            Cancel
-          </Button>
-          <Button 
-            variant="default" 
-            onClick={handleConfirm}
-            className="bg-green-600 hover:bg-green-700 text-white"
-          >
-            Confirm Registration
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
 export default function HackathonFeed() {
   const [hackathons, setHackathons] = useState<Hackathon[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const formatDate = (dateString: string) => 
-    new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     })
 
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          const response = await fetch(
-            'https://pleasant-mullet-unified.ngrok-free.app/hackathon/public_hackathons',
-            {
-              headers: {
-                'Accept': 'application/json',
-                'ngrok-skip-browser-warning': 'true' // Bypass ngrok warning
-              }
-            }
-          )
-  
-          const text = await response.text()
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status} - ${text}`)
-          }
-  
-          try {
-            const data = JSON.parse(text)
-            setHackathons(data)
-          } catch (parseError) {
-            if (parseError instanceof Error) {
-              throw new Error(`Invalid JSON response: ${parseError.message}`)
-            } else {
-              throw new Error('Invalid JSON response')
-            }
-          }
-          
-          setLoading(false)
-        } catch (error) {
-          if (error instanceof Error) {
-            setError(error.message)
-          } else {
-            setError('An unknown error occurred')
-          }
-          setLoading(false)
-          console.error('Fetch error:', error)
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch("https://pleasant-mullet-unified.ngrok-free.app/hackathon/public_hackathons", {
+          headers: {
+            Accept: "application/json",
+            "ngrok-skip-browser-warning": "true", // Bypass ngrok warning
+          },
+        })
+
+        const text = await response.text()
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status} - ${text}`)
         }
+
+        try {
+          const data = JSON.parse(text)
+          setHackathons(data)
+        } catch (parseError) {
+          if (parseError instanceof Error) {
+            throw new Error(`Invalid JSON response: ${parseError.message}`)
+          } else {
+            throw new Error("Invalid JSON response")
+          }
+        }
+
+        setLoading(false)
+      } catch (error) {
+        if (error instanceof Error) {
+          setError(error.message)
+        } else {
+          setError("An unknown error occurred")
+        }
+        setLoading(false)
+        console.error("Fetch error:", error)
       }
-  
-      fetchData()
-    }, [])
+    }
+
+    fetchData()
+  }, [])
 
   if (loading) {
-    return (
-      <div className="w-full py-20 bg-black text-white text-center">
-        Loading...
-      </div>
-    )
+    return <div className="w-full py-20 bg-black text-white text-center">Loading...</div>
   }
 
   if (error) {
-    return (
-      <div className="w-full py-20 bg-black text-white text-center">
-        Error: {error}
-      </div>
-    )
+    return <div className="w-full py-20 bg-black text-white text-center">Error: {error}</div>
   }
 
   return (
@@ -204,7 +111,7 @@ export default function HackathonFeed() {
               </p>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 px-4">
             {hackathons.map((hackathon) => {
               const currentDate = new Date()
@@ -213,34 +120,36 @@ export default function HackathonFeed() {
               let status: string
 
               if (currentDate < startDate) {
-                status = 'upcoming'
+                status = "upcoming"
               } else if (currentDate >= startDate && currentDate <= endDate) {
-                status = 'active'
+                status = "active"
               } else {
-                status = 'expired'
+                status = "expired"
               }
 
               return (
-                <Card 
+                <Card
                   key={hackathon.id}
                   className="bg-neutral-900 border-neutral-800 rounded-xl h-full p-6 flex flex-col justify-between transition-all hover:border-neutral-700"
                 >
                   <div className="flex flex-col gap-6">
                     <div className="flex justify-between items-start">
                       <Trophy className="w-8 h-8 stroke-[1px] text-yellow-500" />
-                      <Badge className={
-                        status === 'active' ? 'bg-green-900/20 text-green-400' :
-                        status === 'upcoming' ? 'bg-yellow-900/20 text-yellow-400' :
-                        'bg-red-900/20 text-red-400'
-                      }>
+                      <Badge
+                        className={
+                          status === "active"
+                            ? "bg-green-900/20 text-green-400"
+                            : status === "upcoming"
+                              ? "bg-yellow-900/20 text-yellow-400"
+                              : "bg-red-900/20 text-red-400"
+                        }
+                      >
                         {status}
                       </Badge>
                     </div>
 
                     <div className="flex flex-col gap-2">
-                      <h3 className="text-2xl tracking-tight font-medium">
-                        {hackathon.title}
-                      </h3>
+                      <h3 className="text-2xl tracking-tight font-medium">{hackathon.title}</h3>
                       <div className="flex items-center gap-2 text-neutral-400">
                         <User className="w-4 h-4" />
                         <span className="text-sm">{hackathon.organiser_clerkId}</span>
@@ -267,13 +176,15 @@ export default function HackathonFeed() {
                     </div>
                   </div>
 
-                  {status === 'active' ? (
-                    <RegistrationDialog 
-                      hackathonId={hackathon.id}
-                      userStartId="user_123abc" // Replace with actual user ID
-                    />
-                  ) : (
-                    <button 
+                  {(status === "active" || status === "upcoming") && (
+                    <div className="flex gap-2 mt-6">
+                      <CreateTeamDialog hackathonId={hackathon.id} />
+                      <JoinTeamDialog hackathonId={hackathon.id} />
+                    </div>
+                  )}
+
+                  {status === "expired" && (
+                    <button
                       className="w-full mt-6 py-3 rounded-lg font-medium text-sm bg-neutral-800 cursor-not-allowed text-neutral-500"
                       disabled
                     >

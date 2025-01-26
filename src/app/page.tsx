@@ -8,6 +8,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Button } from "@/components/ui/moving-border"
 import { Spotlight } from "@/components/ui/Spotlight"
 import { motion } from "framer-motion"
+import Link from "next/link"
 
 export default function Home() {
   return (
@@ -32,6 +33,7 @@ export default function Home() {
                   Find your perfect hackathon team with skill-based matchmaking, portfolio showcases, and mentor
                   endorsements.
                 </p>
+                <Link href="/sign-in">
                 <Button
                   borderRadius="1.75rem"
                   className="text-lg px-8 py-4 relative overflow-hidden 
@@ -40,10 +42,11 @@ export default function Home() {
                     shadow-[0_0_15px_-3px_rgba(96,165,250,0.1)]
                     hover:shadow-[0_0_25px_-3px_rgba(96,165,250,0.2)]
                     transition-all duration-300 group"
-                  onClick={() => window.location.href = '/sign-in'}
+              
                 >
                   Login/Signup
                 </Button>
+                </Link>
               </motion.div>
             </div>
           </section>

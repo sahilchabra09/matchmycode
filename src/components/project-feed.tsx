@@ -26,8 +26,8 @@ interface FeedProject {
   title: string
   short_description?: string
   big_description?: string
-  tags?: string[]
-  skills_required?: string[]
+  tags: string[] // Make tags required and always an array
+  skills_required: string[] | undefined
   goals?: string
   duration?: string
   clerkId?: string
@@ -200,6 +200,9 @@ function ProjectCard({
   project: FeedProject
   onSwipe: (direction: "left" | "right") => void
 }) {
+  // Add safety checks for arrays
+  const tags = Array.isArray(project.tags) ? project.tags : []
+  const skills = Array.isArray(project.skills_required) ? project.skills_required : []
   return (
     <Card className="bg-neutral-900 border-neutral-800">
       <CardHeader>
@@ -214,9 +217,9 @@ function ProjectCard({
           {project.short_description || project.big_description}
         </p>
 
-        {project.tags && project.tags.length > 0 && (
+        {tags.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-4">
-            {project.tags.map((tag) => (
+            {tags.map((tag) => (
               <Badge
                 key={tag}
                 variant="secondary"
@@ -249,7 +252,7 @@ function ProjectCard({
               Skills Required:
             </h4>
             <ul className="list-disc list-inside text-gray-400">
-              {project.skills_required.map((skill, index) => (
+              {Array.isArray(project.skills_required) && project.skills_required.map((skill, index) => (
                 <li key={index}>{skill}</li>
               ))}
             </ul>
