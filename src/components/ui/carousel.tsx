@@ -153,7 +153,7 @@ interface CarouselProps {
   slides: SlideData[];
 }
 
-export default function Carousel({ slides }: CarouselProps) {
+export function Carousel({ slides }: CarouselProps) {
   const [current, setCurrent] = useState(0);
 
   const handlePreviousClick = () => {

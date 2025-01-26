@@ -1,0 +1,21 @@
+export type HackathonFormData = {
+    title: string;
+    description: string;
+    start_date: string;
+    start_time: string;
+    end_date: string;
+    end_time: string;
+    registration_deadline: string;
+    registration_time: string;
+    location: string;
+    address: string;
+    mode: "online" | "offline";
+    category: string;
+    themes: string;
+    tags: string;
+    organiser_clerkId: string;
+    prize_money: number;
+    registration_fees: string;
+    rules: string;
+    additional_info: string;
+  };

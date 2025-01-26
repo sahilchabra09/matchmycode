@@ -1,35 +1,39 @@
-"use client";
+import { FeatureSteps } from "@/components/feature-section"
 
-import Carousel from "@/components/ui/carousel";
-export function CarouselDemo() {
-  const slideData = [
-    {
-      title: "Mystic Mountains",
-      button: "Explore Component",
-      src: "https://images.unsplash.com/photo-1494806812796-244fe51b774d?q=80&w=3534&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "Urban Dreams",
-      button: "Explore Component",
-      src: "https://images.unsplash.com/photo-1518710843675-2540dd79065c?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "Neon Nights",
-      button: "Explore Component",
-      src: "https://images.unsplash.com/photo-1590041794748-2d8eb73a571c?q=80&w=3456&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "Desert Whispers",
-      button: "Explore Component",
-      src: "https://images.unsplash.com/photo-1679420437432-80cfbf88986c?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-  ];
+const features = [
+  // { 
+  //   step: 'Step 1', 
+  //   title: 'Discover Your Potential',
+  //   content: 'Kickstart your journey by identifying key skills and foundational knowledge.', 
+  //   image: 'https://images.unsplash.com/photo-1584697964153-4cdecb234a15?q=80&w=2070&auto=format&fit=crop' 
+  // },
+  { 
+    step: 'Step 2',
+    title: 'Learn and Grow',
+    content: 'Expand your expertise with in-depth learning and skill-building exercises.',
+    image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2070&auto=format&fit=crop'
+  },
+  { 
+    step: 'Step 3',
+    title: 'Collaborate and Innovate',
+    content: 'Work with teams to apply your skills and create impactful projects.',
+    image: 'https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=2070&auto=format&fit=crop'
+  },
+  // { 
+  //   step: 'Step 4',
+  //   title: 'Showcase Your Achievements',
+  //   content: 'Build a portfolio of projects to demonstrate your capabilities to the world.',
+  //   image: 'https://images.unsplash.com/photo-1527251066635-ec6a4903f7d2?q=80&w=2070&auto=format&fit=crop'
+  // },
+];
+
+export function FeatureSection() {
   return (
-    <div>
-    <h1> Features</h1>
-    <div className="relative overflow-hidden w-full h-full py-20">
-      <Carousel slides={slideData} />
-    </div>
-    </div>
-  );
+      <FeatureSteps 
+        features={features}
+        title="Your Journey Starts Here"
+        autoPlayInterval={4000}
+        imageHeight="h-[500px]"
+      />
+  )
 }

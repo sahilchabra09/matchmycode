@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model mentor_details {
+  id                    Int       @id @default(autoincrement())
+  clerkId               String    @unique @db.VarChar(255)
+  name                  String    @db.VarChar(255)
+  email                 String    @unique @db.VarChar(255)
+  phone_number          String?   @db.VarChar(20)
+  role                  String    @db.VarChar(50)
+  bio                   String?
+  portfolio_links       Json?
+  tags                  Json?
+  skills                Json?
+  interests             Json?
+  socials               Json?
+  ongoing_project_links Json?
+  city                  String?   @db.VarChar(255)
+  state                 String?   @db.VarChar(255)
+  country               String?   @db.VarChar(255)
+  education             String?   @db.VarChar(255)
+  experience_years      Int?
+  createdAt             DateTime? @db.Timestamp(6)
+  updatedAt             DateTime? @db.Timestamp(6)
+  users                 users     @relation(fields: [clerkId], references: [clerkId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model user_details {
+  id                                             Int       @id @default(autoincrement())
+  clerkId                                        String    @unique @db.VarChar(255)
+  name                                           String    @db.VarChar(255)
+  email                                          String    @db.VarChar(255)
+  phone_number                                   String?   @db.VarChar(20)
+  city                                           String?   @db.VarChar(50)
+  state                                          String?   @db.VarChar(50)
+  country                                        String?   @db.VarChar(50)
+  role                                           String    @db.VarChar(50)
+  bio                                            String?
+  portfolio_links                                Json?
+  tags                                           Json?
+  skills                                         Json?
+  interests                                      String?
+  socials                                        Json?
+  ongoing_project_links                          Json?
+  createdAt                                      DateTime? @db.Timestamp(6)
+  updatedAt                                      DateTime? @db.Timestamp(6)
+  verified                                       Boolean?
+  reviews_reviews_reviewer_clerkIdTouser_details reviews[] @relation("reviews_reviewer_clerkIdTouser_details")
+  reviews_reviews_user_clerkIdTouser_details     reviews[] @relation("reviews_user_clerkIdTouser_details")
+  user                                           users     @relation(fields: [clerkId], references: [clerkId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model follows {
+  id                               Int       @id @default(autoincrement())
+  follower_id                      String    @db.VarChar
+  followed_id                      String    @db.VarChar
+  created_at                       DateTime? @db.Timestamp(6)
+  users_follows_followed_idTousers users     @relation("follows_followed_idTousers", fields: [followed_id], references: [clerkId], onDelete: NoAction, onUpdate: NoAction)
+  users_follows_follower_idTousers users     @relation("follows_follower_idTousers", fields: [follower_id], references: [clerkId], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([follower_id, followed_id], map: "unique_follow")
+  @@index([followed_id], map: "ix_follows_followed_id")
+  @@index([follower_id], map: "ix_follows_follower_id")
+}
+
+model hackathons {
+  id                           Int                            @id @default(autoincrement())
+  organiser_clerkId            String                         @db.VarChar(255)
+  title                        String                         @db.VarChar(255)
+  description                  String
+  start_date                   DateTime                       @db.Timestamp(6)
+  end_date                     DateTime                       @db.Timestamp(6)
+  mode                         String                         @db.VarChar(50)
+  address                      String?                        @db.VarChar(255)
+  location                     String?                        @db.VarChar(255)
+  tags                         Json?
+  category                     String?                        @db.VarChar(255)
+  prize_money                  Float?
+  registration_fees            String?                        @db.VarChar(50)
+  registration_deadline        DateTime                       @db.Timestamp(6)
+  themes                       Json?
+  rules                        Json?
+  status                       String?                        @db.VarChar(50)
+  additional_info              Json?
+  winners                      Json?
+  created_at                   DateTime?                      @db.Timestamp(6)
+  updated_at                   DateTime?                      @db.Timestamp(6)
+  users                        users                          @relation(fields: [organiser_clerkId], references: [clerkId], onDelete: NoAction, onUpdate: NoAction)
+  user_hackathon_registrations user_hackathon_registrations[]
+}
+
+model organiser_details {
+  id           Int       @id @default(autoincrement())
+  clerkId      String    @unique @db.VarChar(255)
+  role         String    @db.VarChar(50)
+  organization String?   @db.VarChar(255)
+  website      String?   @db.VarChar(255)
+  bio          String?
+  socials      Json?
+  tags         Json?
+  createdAt    DateTime? @db.Timestamp(6)
+  updatedAt    DateTime? @db.Timestamp(6)
+  users        users     @relation(fields: [clerkId], references: [clerkId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model projects {
+  id                Int       @id @default(autoincrement())
+  clerkId           String    @db.VarChar(255)
+  name              String    @db.VarChar(255)
+  title             String    @db.VarChar(255)
+  short_description String
+  big_description   String
+  tags              Json?
+  progress          Int?
+  duration          String?   @db.VarChar(255)
+  goals             String?
+  skills_required   Json?
+  project_status    String    @db.VarChar(50)
+  project_links     Json?
+  createdAt         DateTime? @db.Timestamp(6)
+  updatedAt         DateTime? @db.Timestamp(6)
+  users             users     @relation(fields: [clerkId], references: [clerkId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model reviews {
+  id                                                  Int          @id @default(autoincrement())
+  user_clerkId                                        String       @db.VarChar
+  reviewer_clerkId                                    String       @db.VarChar
+  rating                                              Int
+  comment                                             String?
+  created_at                                          DateTime?    @db.Timestamp(6)
+  user_details_reviews_reviewer_clerkIdTouser_details user_details @relation("reviews_reviewer_clerkIdTouser_details", fields: [reviewer_clerkId], references: [clerkId], onDelete: NoAction, onUpdate: NoAction)
+  user_details_reviews_user_clerkIdTouser_details     user_details @relation("reviews_user_clerkIdTouser_details", fields: [user_clerkId], references: [clerkId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model user_hackathon_registrations {
+  id            Int        @id @default(autoincrement())
+  user_clerkId  String     @db.VarChar(255)
+  hackathon_id  Int
+  registered_at DateTime?  @db.Timestamp(6)
+  hackathons    hackathons @relation(fields: [hackathon_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  users         users      @relation(fields: [user_clerkId], references: [clerkId], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model users {
+  clerkId                            String                         @id @db.VarChar(255)
+  name                               String                         @db.VarChar(255)
+  email                              String                         @unique @db.VarChar(255)
+  phone_number                       String?                        @unique @db.VarChar(20)
+  role                               String                         @db.VarChar(50)
+  createdAt                          DateTime?                      @db.Timestamp(6)
+  updatedAt                          DateTime?                      @db.Timestamp(6)
+  follows_follows_followed_idTousers follows[]                      @relation("follows_followed_idTousers")
+  follows_follows_follower_idTousers follows[]                      @relation("follows_follower_idTousers")
+  hackathons                         hackathons[]
+  mentor_details                     mentor_details?
+  organiser_details                  organiser_details?
+  projects                           projects[]
+  user_details                       user_details?
+  user_hackathon_registrations       user_hackathon_registrations[]
+}
