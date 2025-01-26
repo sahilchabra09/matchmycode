@@ -197,7 +197,7 @@ export default function MyProfile() {
           </TabsList>
 
           <TabsContent value="projects">
-            <ProjectSection />
+            {/* <ProjectSection /> */}
           </TabsContent>
 
           <TabsContent value="skills">

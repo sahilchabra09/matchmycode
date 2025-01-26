@@ -2,76 +2,75 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { X, Check, Users, Calendar, Target } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 
-// Enhanced mock data for projects
-const projectsData = [
-  {
-    id: 1,
-    title: "AI-Powered Chat Application",
-    description:
-      "Developing a chat application with AI capabilities for smart responses and language translation. This project aims to revolutionize online communication by integrating advanced natural language processing.",
-    owner: "Alice Johnson",
-    tags: ["AI", "NLP", "React", "Node.js"],
-    collaborators: 3,
-    duration: "3 months",
-    skillsRequired: ["Machine Learning", "Full-Stack Development", "API Integration"],
-    goals: "Create a user-friendly chat interface with AI-driven responses and real-time translation features.",
-  },
-  {
-    id: 2,
-    title: "Blockchain-based Voting System",
-    description:
-      "Creating a secure and transparent voting system using blockchain technology. This project seeks to enhance the integrity of digital voting processes for various applications.",
-    owner: "Bob Smith",
-    tags: ["Blockchain", "Ethereum", "Smart Contracts"],
-    collaborators: 2,
-    duration: "6 months",
-    skillsRequired: ["Blockchain Development", "Cryptography", "UI/UX Design"],
-    goals:
-      "Develop a tamper-proof, auditable voting system that can be deployed for organizational or governmental use.",
-  },
-  {
-    id: 3,
-    title: "AR Navigation App",
-    description:
-      "Building an augmented reality app for indoor navigation in large buildings. This innovative project combines AR technology with precise indoor mapping to guide users through complex structures.",
-    owner: "Carol Williams",
-    tags: ["AR", "iOS", "Android", "Unity"],
-    collaborators: 4,
-    duration: "4 months",
-    skillsRequired: ["AR Development", "3D Modeling", "Mobile App Development"],
-    goals:
-      "Create an intuitive AR app that overlays directional information on real-world environments for seamless navigation.",
-  },
-]
+// Swiping sensitivity constants
+const swipeConfidenceThreshold = 10000
+const swipePower = (offset: number, velocity: number) => {
+  return Math.abs(offset) * velocity
+}
 
 export default function ProjectFeed() {
-  const [projects, setProjects] = useState(projectsData)
-  const [currentIndex, setCurrentIndex] = useState(0)
   const { toast } = useToast()
+
+  // Projects state
+  const [projects, setProjects] = useState<any[]>([])
+  // Track the exit direction so the card animates left or right properly
+  const [exitX, setExitX] = useState(0)
+
+  // Screens
   const [showSuccessScreen, setShowSuccessScreen] = useState(false)
   const [showRejectionScreen, setShowRejectionScreen] = useState(false)
 
+  // --- Fetch data from your API on mount ---
+  useEffect(() => {
+    async function fetchProjects() {
+      try {
+        const response = await fetch("https://pleasant-mullet-unified.ngrok-free.app/projects/feed_projects")
+        if (!response.ok) {
+          throw new Error("Failed to fetch projects")
+        }
+        const data = await response.json()
+        setProjects(data) // data should be an array of projects
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    fetchProjects()
+  }, [])
+
+  // Helper to remove the first project from the list
   const removeProject = useCallback(() => {
     setProjects((prev) => prev.slice(1))
   }, [])
 
+  // Handle swipes or arrow-key logic
   const handleSwipe = useCallback(
     (direction: "left" | "right") => {
       if (projects.length > 0) {
-        const project = projects[0]
+        // Set exit direction so the card animates properly
+        setExitX(direction === "left" ? -300 : 300)
+
         if (direction === "right") {
+          // "Accept" flow
           setShowSuccessScreen(true)
           setTimeout(() => {
             setShowSuccessScreen(false)
             removeProject()
           }, 1500)
         } else {
+          // "Reject" flow
           setShowRejectionScreen(true)
           setTimeout(() => {
             setShowRejectionScreen(false)
@@ -83,6 +82,7 @@ export default function ProjectFeed() {
     [projects, removeProject],
   )
 
+  // Listen for left/right arrow keys
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "ArrowLeft") {
@@ -93,10 +93,7 @@ export default function ProjectFeed() {
     }
 
     window.addEventListener("keydown", handleKeyDown)
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown)
-    }
+    return () => window.removeEventListener("keydown", handleKeyDown)
   }, [handleSwipe])
 
   return (
@@ -104,12 +101,19 @@ export default function ProjectFeed() {
       <h1 className="text-3xl font-bold text-center mb-8">Project Feed</h1>
       <div className="max-w-md mx-auto relative">
         <AnimatePresence>
+          {/* Show the top card if we have projects and aren't in success/rejection screens */}
           {projects.length > 0 && !showSuccessScreen && !showRejectionScreen && (
             <motion.div
               key={projects[0].id}
+              // Appear
               initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, x: 300, transition: { duration: 0.2 } }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              // Exit to left or right, based on exitX state
+              exit={{
+                opacity: 0,
+                x: exitX,
+                transition: { duration: 0.2 },
+              }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
               className="absolute w-full"
               drag="x"
@@ -126,33 +130,45 @@ export default function ProjectFeed() {
               <ProjectCard project={projects[0]} onSwipe={handleSwipe} />
             </motion.div>
           )}
+
+          {/* Success screen (Right swipe) */}
           {showSuccessScreen && <SuccessScreen project={projects[0]} />}
+
+          {/* Rejection screen (Left swipe) */}
           {showRejectionScreen && <RejectionScreen project={projects[0]} />}
         </AnimatePresence>
-        {projects.length === 0 && (
-          <div className="text-center text-neutral-800 mt-8">No more projects available. Check back later!</div>
+
+        {/* No more projects */}
+        {projects.length === 0 && !showSuccessScreen && !showRejectionScreen && (
+          <div className="text-center text-neutral-500 mt-8">
+            No more projects available. Check back later!
+          </div>
         )}
       </div>
     </div>
   )
 }
 
-const swipeConfidenceThreshold = 10000
-const swipePower = (offset: number, velocity: number) => {
-  return Math.abs(offset) * velocity
+/* ------------------------------------------------- */
+/* Project Card Component                            */
+/* ------------------------------------------------- */
+
+interface FeedProject {
+  id: number
+  title: string
+  short_description?: string
+  big_description?: string
+  tags?: string[]
+  skills_required?: string[]
+  goals?: string
+  duration?: string
+  clerkId?: string
+  name?: string
+  // Add additional fields if needed
 }
 
 interface ProjectCardProps {
-  project: {
-    title: string
-    description: string
-    owner: string
-    tags: string[]
-    collaborators: number
-    duration: string
-    skillsRequired: string[]
-    goals: string
-  }
+  project: FeedProject
   onSwipe: (direction: "left" | "right") => void
 }
 
@@ -160,42 +176,68 @@ function ProjectCard({ project, onSwipe }: ProjectCardProps) {
   return (
     <Card className="bg-neutral-900 border-neutral-800">
       <CardHeader>
+        {/* Title */}
         <CardTitle className="text-2xl font-bold">{project.title}</CardTitle>
-        <CardDescription className="text-neutral-400">{project.owner}</CardDescription>
+        {/* “Owner” substitute – you could use clerkId, name, or remove entirely */}
+        <CardDescription className="text-neutral-400">
+          Owned by: {project.clerkId || project.name || "Unknown"}
+        </CardDescription>
       </CardHeader>
+
       <CardContent>
-        <p className="text-gray-300 mb-4">{project.description}</p>
-        <div className="flex flex-wrap gap-2 mb-4">
-          {project.tags.map((tag) => (
-            <Badge key={tag} variant="secondary" className="bg-gray-800 text-gray-200">
-              {tag}
-            </Badge>
-          ))}
-        </div>
-        <div className="space-y-2 text-sm text-gray-400">
-          <div className="flex items-center">
-            <Users className="w-4 h-4 mr-2" />
-            <span>Collaborators: {project.collaborators}</span>
-          </div>
-          <div className="flex items-center">
-            <Calendar className="w-4 h-4 mr-2" />
-            <span>Duration: {project.duration}</span>
-          </div>
-          <div className="flex items-center">
-            <Target className="w-4 h-4 mr-2" />
-            <span>Goals: {project.goals}</span>
-          </div>
-        </div>
-        <div className="mt-4">
-          <h4 className="text-gray-300 font-semibold mb-2">Skills Required:</h4>
-          <ul className="list-disc list-inside text-gray-400">
-            {project.skillsRequired.map((skill, index) => (
-              <li key={index}>{skill}</li>
+        {/* Display short_description or big_description */}
+        <p className="text-gray-300 mb-4">
+          {project.short_description || project.big_description}
+        </p>
+
+        {/* Tags */}
+        {project.tags && project.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {project.tags.map((tag) => (
+              <Badge
+                key={tag}
+                variant="secondary"
+                className="bg-gray-800 text-gray-200"
+              >
+                {tag}
+              </Badge>
             ))}
-          </ul>
+          </div>
+        )}
+
+        {/* Duration / Goals (if available) */}
+        <div className="space-y-2 text-sm text-gray-400">
+          {project.duration && (
+            <div className="flex items-center">
+              <Calendar className="w-4 h-4 mr-2" />
+              <span>Duration: {project.duration}</span>
+            </div>
+          )}
+          {project.goals && (
+            <div className="flex items-center">
+              <Target className="w-4 h-4 mr-2" />
+              <span>Goals: {project.goals}</span>
+            </div>
+          )}
         </div>
+
+        {/* Skills Required */}
+        {project.skills_required && project.skills_required.length > 0 && (
+          <div className="mt-4">
+            <h4 className="text-gray-300 font-semibold mb-2">
+              Skills Required:
+            </h4>
+            <ul className="list-disc list-inside text-gray-400">
+              {project.skills_required.map((skill, index) => (
+                <li key={index}>{skill}</li>
+              ))}
+            </ul>
+          </div>
+        )}
       </CardContent>
+
       <CardFooter className="flex justify-between">
+        {/* Left (Reject) */}
         <Button
           variant="outline"
           size="icon"
@@ -204,6 +246,8 @@ function ProjectCard({ project, onSwipe }: ProjectCardProps) {
         >
           <X className="h-4 w-4" />
         </Button>
+
+        {/* Right (Accept) */}
         <Button
           variant="outline"
           size="icon"
@@ -217,7 +261,12 @@ function ProjectCard({ project, onSwipe }: ProjectCardProps) {
   )
 }
 
-function SuccessScreen({ project }: { project: ProjectCardProps["project"] }) {
+/* ------------------------------------------------- */
+/* Success Screen (Right Swipe)                      */
+/* ------------------------------------------------- */
+
+function SuccessScreen({ project }: { project: FeedProject }) {
+  if (!project) return null
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
@@ -233,7 +282,12 @@ function SuccessScreen({ project }: { project: ProjectCardProps["project"] }) {
   )
 }
 
-function RejectionScreen({ project }: { project: ProjectCardProps["project"] }) {
+/* ------------------------------------------------- */
+/* Rejection Screen (Left Swipe)                     */
+/* ------------------------------------------------- */
+
+function RejectionScreen({ project }: { project: FeedProject }) {
+  if (!project) return null
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.8 }}
@@ -248,4 +302,3 @@ function RejectionScreen({ project }: { project: ProjectCardProps["project"] }) 
     </motion.div>
   )
 }
-
