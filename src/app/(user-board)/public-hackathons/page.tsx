@@ -46,7 +46,7 @@ export default function HackathonFeed() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch("https://pleasant-mullet-unified.ngrok-free.app/hackathon/public_hackathons", {
+        const response = await fetch("https://match-my-code.up.railway.app/user/post_user_details/hackathon/public_hackathons", {
           headers: {
             Accept: "application/json",
             "ngrok-skip-browser-warning": "true", // Bypass ngrok warning

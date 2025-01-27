@@ -7,7 +7,7 @@ export default async function PeopleFeedPage() {
 
 async function fetchUsers() {
   try {
-    const response = await fetch("https://pleasant-mullet-unified.ngrok-free.app/user/search_users", {
+    const response = await fetch("https://match-my-code.up.railway.app/user/post_user_details/user/search_users", {
       cache: "no-store",
     })
     if (!response.ok) {

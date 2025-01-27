@@ -25,7 +25,7 @@ export default function MyReview() {
     const fetchReviews = async () => {
       try {
         const res = await fetch(
-          `https://pleasant-mullet-unified.ngrok-free.app/reviews/get_reviews/${user.id}`,
+          `https://match-my-code.up.railway.app/reviews/get_reviews/${user.id}`,
           {
             headers: {
               "ngrok-skip-browser-warning": "true",

@@ -52,7 +52,7 @@ export function UserSearch() {
       }
 
       const response = await fetch(
-        `https://pleasant-mullet-unified.ngrok-free.app/user/search_users?${params}`,
+        `https://match-my-code.up.railway.app/user/search_users?${params}`,
         {
           headers: {
             'Accept': 'application/json',

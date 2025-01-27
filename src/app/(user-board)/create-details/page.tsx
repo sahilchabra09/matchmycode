@@ -41,7 +41,7 @@ export default function UserDetailsForm() {
     };
 
     try {
-      const response = await fetch("https://pleasant-mullet-unified.ngrok-free.app/user/post_user_details", {
+      const response = await fetch("https://match-my-code.up.railway.app/user/post_user_details", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

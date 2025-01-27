@@ -26,7 +26,7 @@ export default function ProjectSection({ clerkId }: { clerkId: string }) {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await fetch(`https://pleasant-mullet-unified.ngrok-free.app//projects/get_user_projects/${clerkId}`)
+        const response = await fetch(`https://match-my-code.up.railway.app/projects/get_user_projects/${clerkId}`)
         const data = await response.json()
         setProjects(data)
       } catch (error) {

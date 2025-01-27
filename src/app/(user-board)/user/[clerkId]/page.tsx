@@ -45,11 +45,11 @@ export default function ProfilePage() {
       try {
         const [profileRes, followingRes] = await Promise.all([
           fetch(
-            `https://pleasant-mullet-unified.ngrok-free.app/user/get_user_details_public/${profileClerkId}`,
+            `https://match-my-code.up.railway.app/user/post_user_details/user/get_user_details_public/${profileClerkId}`,
             { headers: { 'ngrok-skip-browser-warning': 'true' } }
           ),
           currentUser?.id && fetch(
-            `https://pleasant-mullet-unified.ngrok-free.app/follow/users/${currentUser.id}/following`,
+            `https://match-my-code.up.railway.app/user/post_user_details/follow/users/${currentUser.id}/following`,
             { headers: { 'ngrok-skip-browser-warning': 'true' } }
           )
         ])

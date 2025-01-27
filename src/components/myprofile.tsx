@@ -44,7 +44,7 @@ export default function MyProfile() {
     const fetchUserDetails = async () => {
       try {
         const res = await fetch(
-          `https://pleasant-mullet-unified.ngrok-free.app/user/get_user_details_dashboard/${user.id}`,
+          `https://match-my-code.up.railway.app/user/get_user_details_dashboard/${user.id}`,
           {
             headers: {
               // Add header to skip ngrok browser warning

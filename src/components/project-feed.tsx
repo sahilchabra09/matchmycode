@@ -50,7 +50,7 @@ export default function ProjectFeed() {
       try {
         setLoading(true)
         const response = await fetch(
-          "https://pleasant-mullet-unified.ngrok-free.app/projects/feed_projects",
+          "https://match-my-code.up.railway.app/projects/feed_projects",
           {
             headers: {
               Accept: "application/json",

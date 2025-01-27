@@ -141,7 +141,7 @@ export function CreateHackathonDialog() {
 
     try {
       // Use the NEXT_PUBLIC_BACKEND_URL environment variable
-      const backendUrl = `${process.env.NEXT_PUBLIC_BACKEND_URL}hackathon/create_hackathon`;
+      const backendUrl = `https://match-my-code.up.railway.app/hackathon/create_hackathon`;
       console.log("Backend URL:", backendUrl);
 
       // Make the API call

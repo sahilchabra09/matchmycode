@@ -68,7 +68,7 @@ export function EditProfileForm() {
       setIsLoading(true);
       try {
         const response = await fetch(
-          `https://pleasant-mullet-unified.ngrok-free.app/user/get_user_details_dashboard/${userId}`,
+          `https://match-my-code.up.railway.app//user/get_user_details_dashboard/${userId}`,
           {
             headers: {
               "ngrok-skip-browser-warning": "true",
@@ -98,7 +98,7 @@ export function EditProfileForm() {
     setIsLoading(true);
     try {
       const response = await fetch(
-        `https://pleasant-mullet-unified.ngrok-free.app/user/update_user_details/${userId}`,
+        `https://match-my-code.up.railway.app/user/update_user_details/${userId}`,
         {
           method: "PUT",
           headers: {

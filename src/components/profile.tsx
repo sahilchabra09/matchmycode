@@ -41,7 +41,7 @@ export default function Profile() {
       try {
         // Fetch profile data
         const profileRes = await fetch(
-          `https://pleasant-mullet-unified.ngrok-free.app/user/get_user_details_dashboard/12345`,
+          `https://match-my-code.up.railway.app/user/get_user_details_dashboard/12345`,
           { headers: { 'ngrok-skip-browser-warning': 'true' } }
         )
         if (!profileRes.ok) throw new Error("Failed to fetch profile")
@@ -60,7 +60,7 @@ export default function Profile() {
         // Fetch following status
         if (currentUser?.id) {
           const followRes = await fetch(
-            `https://pleasant-mullet-unified.ngrok-free.app/follow/users/${currentUser.id}/following`,
+            `https://match-my-code.up.railway.app/follow/users/${currentUser.id}/following`,
             { headers: { 'ngrok-skip-browser-warning': 'true' } }
           )
           if (!followRes.ok) throw new Error("Failed to fetch following status")
@@ -84,7 +84,7 @@ export default function Profile() {
     try {
       const endpoint = isFollowing ? "/follow/unfollow" : "/follow/follow"
       const res = await fetch(
-        `https://pleasant-mullet-unified.ngrok-free.app${endpoint}`,
+        `https://match-my-code.up.railway.app${endpoint}`,
         {
           method: "POST",
           headers: {

@@ -34,7 +34,7 @@ export function JoinTeamDialog({ hackathonId }: JoinTeamDialogProps) {
     setError(null)
 
     try {
-      const response = await fetch("https://pleasant-mullet-unified.ngrok-free.app/registration/join_team", {
+      const response = await fetch("https://match-my-code.up.railway.app//registration/join_team", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
